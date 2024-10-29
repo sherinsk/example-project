@@ -1,6 +1,7 @@
 const express=require('express');
 const morgan=require('morgan');
 const http=require('http')
+require('dotenv').config();
 
 const app=express();
 const server=http.createServer(app);
@@ -17,7 +18,7 @@ app.use((error, req, res, next) => {
     res.status(500).json({ error: error.message });
   });
 
-  
+
 const PORT=3000;
 server.listen(PORT,()=>{
     console.log("Server is running on port",PORT)

@@ -1,37 +1,49 @@
-const prisma=require('../config/dataBase')
+const prisma=require('../config/dataBase');
+const {sendMail}=require('../config/mail')
+const { sendOTP, verifyOTP } = require('../utils/otpUtils');
 
 
 const userController={
-    async checkApi(req, res) {
-        
-        const { firstName, lastName, email, phoneNumber, password } = req.body;
+    async sendmail(req,res) {
+        const {to,subject,text,html}=req.body;
+        try
+        {
+            await sendMail(to,subject,text,html)
+            res.status(200).json({status:true,message:"Email sent"})
+        }
+        catch(error)
+        {
+            return res.status(500).json({ status: false, message: error.message });
+        }
+    },
+    async sendotp(req, res) {
+        const { email } = req.body;
+    
+        if (!email) {
+            return res.status(400).json({ status: false, message: 'Email is required.' });
+        }
     
         try {
-            // Create the new user in the database without hashing the password
-            await prisma.user.create({
-                data: {
-                    firstName,
-                    lastName,
-                    phoneNumber,
-                    email,
-                    password, // Storing the password as is
-                },
-            });
-    
-            // Respond with a success message
-            res.status(201).json({ message: "Account created" });
+            const result = await sendOTP(email);
+            return res.status(200).json(result);
         } catch (error) {
-            console.error(error); // Log the error for debugging
-    
-            // Handle specific error cases
-            if (error.code === 'P2002') { // Unique constraint violation
-                return res.status(400).json({ error: "Email already in use." });
+            return res.status(500).json({ status: false, message: error.message });
+        }},
+
+        async verifyotp (req, res){
+            const { email, otp } = req.body;
+        
+            if (!email || !otp) {
+                return res.status(400).json({ success: false, message: 'Email and OTP are required.' });
             }
-    
-            // General error response
-            res.status(500).json({ error: "Internal Server Error" });
+        
+            try {
+                const isValid = await verifyOTP(email, otp);
+                return res.status(200).json({ success: true, message: 'OTP verified successfully.', valid: isValid });
+            } catch (error) {
+                return res.status(400).json({ success: false, message: error.message });
+            }
         }
-    }    
 }
 
 module.exports=userController;

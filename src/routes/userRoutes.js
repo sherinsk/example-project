@@ -4,7 +4,9 @@ const {verifyUserToken}=require('../middlewares/authMiddleware')
 
 const router = express.Router();
 
-router.post('/check',verifyUserToken,userController.checkApi)
+router.post('/send-otp',userController.sendotp)
+router.post('/verify-otp',userController.verifyotp)
+router.post('/sendmail',userController.sendmail)
 
 
 module.exports=router;
