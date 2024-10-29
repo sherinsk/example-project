@@ -1,4 +1,5 @@
 const crypto = require('crypto');
+const cron = require('node-cron');
 const { sendMail } = require('../config/mail'); 
 
 const otps = [];
@@ -43,5 +44,27 @@ const verifyOTP = async (to, otp) => {
     otps.splice(otps.indexOf(storedOTP), 1);
     return true; // OTP is valid
 };
+
+
+cron.schedule('20 20 * * *', () => {
+    console.log('Cron job is running: Cleaning up expired OTPs.');
+
+    const currentTime = Date.now();
+    const initialLength = otps.length; // Length before cleanup
+
+    // Remove expired OTPs
+    for (let i = otps.length - 1; i >= 0; i--) {
+        if (otps[i].expiration < currentTime) {
+            otps.splice(i, 1);
+        }
+    }
+
+    const removedCount = initialLength - otps.length; // Number of removed OTPs
+    if (removedCount > 0) {
+        console.log(`Removed ${removedCount} expired OTP(s)`);
+    } else {
+        console.log('No expired OTPs to remove.');
+    }
+});
 
 module.exports = {sendOTP,verifyOTP};
