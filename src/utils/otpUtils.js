@@ -32,7 +32,7 @@ const verifyOTP = async (to, otp) => {
     const storedOTP = otps.find(entry => entry.email === to && entry.otp === otp);
 
     if (!storedOTP) {
-        throw new Error('Invalid OTP or no OTP sent for this email.');
+        throw new Error('Invalid OTP');
     }
 
 
