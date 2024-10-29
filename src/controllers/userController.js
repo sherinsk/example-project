@@ -16,7 +16,9 @@ const userController={
             return res.status(500).json({ status: false, message: error.message });
         }
     },
+
     async sendotp(req, res) {
+        
         const { email } = req.body;
     
         if (!email) {
@@ -31,16 +33,20 @@ const userController={
         }},
 
         async verifyotp (req, res){
+
             const { email, otp } = req.body;
-        
+
             if (!email || !otp) {
                 return res.status(400).json({ success: false, message: 'Email and OTP are required.' });
             }
         
-            try {
+            try 
+            {
                 const isValid = await verifyOTP(email, otp);
                 return res.status(200).json({ success: true, message: 'OTP verified successfully.', valid: isValid });
-            } catch (error) {
+            } 
+            catch (error) 
+            {
                 return res.status(400).json({ success: false, message: error.message });
             }
         }
